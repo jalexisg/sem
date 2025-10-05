@@ -1,5 +1,7 @@
 ## SE Methods
 ![workflow](https://github.com/jalexisg/sem/actions/workflows/main.yml/badge.svg)
-[![LICENSE](https://img.shields.io/github/license/jalexisg/devops.svg?style=flat-square)](https://github.com/jalexisg/devops/blob/master/LICENSE)
-[![Releases](https://img.shields.io/github/release/jalexisg/devops/all.svg?style=flat-square)](https://github.com/jalexisg/devops/releases)
-- Testing CI workflow
+[![LICENSE](https://img.shields.io/github/license/jalexisg/sem?style=flat-square)](https://github.com/jalexisg/sem/blob/main/LICENSE)
+[![Releases](https://img.shields.io/github/release/jalexisg/sem/all.svg?style=flat-square)](https://github.com/jalexisg/sem/releases)
+
+# DevOps
+![GitHub Workflow Status (branch)](https://img.shields.io/github/actions/workflow/status/jalexisg/sem/main.yml?branch=develop&style=flat-square)
