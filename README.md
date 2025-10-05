@@ -4,4 +4,5 @@
 [![Releases](https://img.shields.io/github/release/jalexisg/sem/all.svg?style=flat-square)](https://github.com/jalexisg/sem/releases)
 
 # DevOps
-![GitHub Workflow Status (branch)](https://img.shields.io/github/actions/workflow/status/jalexisg/sem/main.yml?branch=develop&style=flat-square)
+* Master Build Status ![GitHub Workflow Status (branch)](https://img.shields.io/github/actions/workflow/status/jalexisg/sem/main.yml?branch=master&style=flat-square)
+* Develop Build Status ![GitHub Workflow Status (branch)](https://img.shields.io/github/actions/workflow/status/jalexisg/sem/main.yml?branch=develop&style=flat-square)
