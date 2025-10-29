@@ -1,6 +1,7 @@
 package com.napier.sem;
 
 import java.sql.*;
+import java.util.ArrayList;
 
 public class App
 {
@@ -11,10 +12,12 @@ public class App
 
         // Connect to database
         a.connect();
-        // Get Employee
-        Employee emp = a.getEmployee(255530);
-        // Display results
-        a.displayEmployee(emp);
+
+        // Extract employee salary information
+        ArrayList<Employee> employees = Employee.getAllSalaries(a.getCon());
+
+        // Test the size of the returned data - should be 240124
+        System.out.println(employees.size());
 
         // Disconnect from database
         a.disconnect();
@@ -85,6 +88,14 @@ public class App
                 System.out.println("Error closing connection to database");
             }
         }
+    }
+
+    /**
+     * Expose connection for helper methods (minimal change to integrate Employee.getAllSalaries).
+     */
+    public Connection getCon()
+    {
+        return con;
     }
 
     public Employee getEmployee(int ID)
