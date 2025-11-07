@@ -10,9 +10,9 @@ public class App {
 
         // Connect to database
         if(args.length < 1){
-            a.connect("localhost:33060", 30000);
+            a.connect("localhost:33060", 0);
         }else{
-            a.connect(args[0], Integer.parseInt(args[1]));
+            a.connect("db:3306", 30000);
         }
 
         // Test department lookup and salaries-by-department
@@ -63,13 +63,23 @@ public class App {
                 // Wait a bit for db to start
                 Thread.sleep(delay);
                 // Connect to database
-//                con = DriverManager.getConnection("jdbc:mysql://db:3306/employees?allowPublicKeyRetrieval=true&useSSL=false", "root", "example");
-                con = DriverManager.getConnection("jdbc:mysql://" +location + "/employees?allowPublicKeyRetrieval=true&useSSL=false", "root", "example");
+                String dbUser = System.getenv("MYSQL_USER");
+                String dbPassword = System.getenv("MYSQL_PASSWORD");
 
+                if (dbUser == null || dbUser.isEmpty()) {
+                    dbUser = "root";
+                }
+                if (dbPassword == null) {
+                    dbPassword = "example";
+                }
+
+                con = DriverManager.getConnection("jdbc:mysql://" + location
+                                + "/employees?allowPublicKeyRetrieval=true&useSSL=false",
+                        dbUser, dbPassword);
                 System.out.println("Successfully connected");
                 break;
             } catch (SQLException sqle) {
-                System.out.println("Failed to connect to database attempt " + Integer.toString(i));
+                System.out.println("Failed to connect to database attempt " +                                  Integer.toString(i));
                 System.out.println(sqle.getMessage());
             } catch (InterruptedException ie) {
                 System.out.println("Thread interrupted? Should not happen.");
