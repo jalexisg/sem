@@ -18,7 +18,7 @@ public class AppIntegrationAdditionalTest {
     static void init() {
         app = new App();
         // connect to the same test DB mapping used elsewhere
-        app.connect("localhost:33060", 30000);
+        app.connect("localhost:33061", 30000);
     }
 
     @Test
