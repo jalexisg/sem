@@ -2,6 +2,10 @@ package com.napier.sem;
 
 import java.sql.*;
 import java.util.ArrayList;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
 
 public class App {
     public static void main(String[] args) {
@@ -14,6 +18,9 @@ public class App {
         }else{
             a.connect("db:3306", 30000);
         }
+
+        ArrayList<Employee> employees = a.getSalariesByRole("Manager");
+        a.outputEmployees(employees, "ManagerSalaries.md");
 
         // Test department lookup and salaries-by-department
         // Change the name below to a department that exists in your DB (e.g. "Sales").
@@ -86,6 +93,106 @@ public class App {
             }
         }
     }
+
+    /**
+     * Outputs to Markdown
+     *
+     * @param employees
+     */
+    public void outputEmployees(ArrayList<Employee> employees, String filename) {
+        // Check employees is not null
+        if (employees == null) {
+            System.out.println("No employees");
+            return;
+        }
+
+        StringBuilder sb = new StringBuilder();
+        // Print header
+        sb.append("| Emp No | First Name | Last Name | Title | Salary | Department | Manager |\r\n");
+        sb.append("| --- | --- | --- | --- | --- | --- | --- |\r\n");
+        // Loop over all employees in the list
+        for (Employee emp : employees) {
+            if (emp == null) continue;
+            String deptName = "";
+            if (emp.dept != null && emp.dept.dept_name != null) deptName = emp.dept.dept_name;
+                String managerStr = "";
+                if (emp.manager != null) managerStr = Integer.toString(emp.manager.emp_no);
+                sb.append("| " + emp.emp_no + " | " +
+                    emp.first_name + " | " + emp.last_name + " | " +
+                    emp.title + " | " + emp.salary + " | "
+                    + deptName + " | " + managerStr + " |\r\n");
+        }
+        try {
+            new File("./reports/").mkdir();
+            BufferedWriter writer = new BufferedWriter(new FileWriter(new File("./reports/" + filename)));
+            writer.write(sb.toString());
+            writer.close();
+        } catch (IOException e) {
+            System.err.println("Failed to write report: " + e.getMessage());
+        }
+    }
+
+    /**
+     * Get current employees with a given title (role) and their current salary.
+     * Populates `title`, `salary` and `dept.dept_name` when available. Manager is left null.
+     */
+    public ArrayList<Employee> getSalariesByRole(String role) {
+        ArrayList<Employee> employees = new ArrayList<>();
+
+        if (con == null) {
+            System.err.println("No database connection");
+            return employees;
+        }
+
+        String sql =
+            "SELECT employees.emp_no, employees.first_name, employees.last_name, \n"
+                + "       titles.title, salaries.salary, departments.dept_name, dept_manager.emp_no AS manager_no \n"
+                + "FROM employees, salaries, titles, departments, dept_emp, dept_manager \n"
+                + "WHERE employees.emp_no = salaries.emp_no \n"
+                + "  AND salaries.to_date = '9999-01-01' \n"
+                + "  AND titles.emp_no = employees.emp_no \n"
+                + "  AND titles.to_date = '9999-01-01' \n"
+                + "  AND dept_emp.emp_no = employees.emp_no \n"
+                + "  AND dept_emp.to_date = '9999-01-01' \n"
+                + "  AND departments.dept_no = dept_emp.dept_no \n"
+                + "  AND dept_manager.dept_no = dept_emp.dept_no \n"
+                + "  AND dept_manager.to_date = '9999-01-01' \n"
+                + "  AND titles.title = ? \n"
+                + "ORDER BY employees.emp_no ASC";
+
+        try (PreparedStatement ps = con.prepareStatement(sql)) {
+            ps.setString(1, role);
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    Employee emp = new Employee();
+                    emp.emp_no = rs.getInt("emp_no");
+                    emp.first_name = rs.getString("first_name");
+                    emp.last_name = rs.getString("last_name");
+                    emp.title = rs.getString("title");
+                    emp.salary = rs.getInt("salary");
+                    String deptName = rs.getString("dept_name");
+                    if (deptName != null) {
+                        Department d = new Department();
+                        d.dept_name = deptName;
+                        emp.dept = d;
+                    }
+                    Integer mgrNo = (Integer) rs.getObject("manager_no");
+                    if (mgrNo != null) {
+                        Employee mgr = new Employee();
+                        mgr.emp_no = mgrNo;
+                        emp.manager = mgr;
+                    }
+                    employees.add(emp);
+                }
+            }
+        } catch (SQLException e) {
+            System.err.println("Failed to get salaries by role: " + e.getMessage());
+        }
+
+        return employees;
+    }
+
+
 
     /**
      * Disconnect from the MySQL database.
